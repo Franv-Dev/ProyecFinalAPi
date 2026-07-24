@@ -1,155 +1,151 @@
-async function paginacion(inicio, limite) {
-    resetSearch(); 
+const BASE_URL = 'https://pokeapi.co/api/v2/pokemon';
 
-    const cardsContainer = document.querySelector('#cards-container');
-    cardsContainer.innerHTML = "";
+const cardsContainer = document.querySelector('#cards-container');
+const pokemonInfoContainer = document.querySelector('#pokemon-info');
+const searchForm = document.querySelector('#searchForm');
+const searchInput = document.querySelector('#searchInput');
+const pageSelect = document.querySelector('#pageSelect');
+
+// --- FETCH API ---
+async function getPokemon(query) {
+    const res = await fetch(`${BASE_URL}/${query}`);
+    if (!res.ok) throw new Error('Pokémon no encontrado');
+    return await res.json();
+}
+
+async function getPokemonRange(inicio, limite) {
+    const promises = [];
     for (let i = inicio; i <= limite; i++) {
-        const url = `https://pokeapi.co/api/v2/pokemon/${i}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        cardsContainer.innerHTML += `
+        promises.push(getPokemon(i));
+    }
+    return await Promise.all(promises);
+}
+
+// --- TEMPLATE DE CARD HTML ---
+function createPokemonCardHTML(data) {
+    const tiposBadges = data.types
+        .map(t => `<span class="badge badge-type type-${t.type.name}">${t.type.name}</span>`)
+        .join(' ');
+
+    const statsList = data.stats
+        .map(s => `
+            <li class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-capitalize text-light-50" style="font-size: 0.8rem;">${s.stat.name}:</span> 
+                <strong class="text-warning" style="font-size: 0.85rem;">${s.base_stat}</strong>
+            </li>
+        `)
+        .join('');
+
+    const habilidadesList = data.abilities
+        .map(a => `<li class="text-capitalize text-white-50" style="font-size: 0.8rem;">• ${a.ability.name}</li>`)
+        .join('');
+
+    const imageSrc = data.sprites.other['official-artwork'].front_default || data.sprites.front_default;
+
+    return `
+        <div class="col d-flex justify-content-center">
             <div class="myCard">
                 <div class="innerCard">
+                    
+                    <!-- CARA FRONTAL -->
                     <div class="frontSide">
-                        <img src="${data.sprites.front_default}" alt="" class="foto">
-                        <div class="info">
-                            <p class="title">${data.name}</p>
-                            <p class="tipo">${data.types.map(type => type.type.name).join(', ')}</p>
-                            <p>ID: ${data.id}</p>
+                        <div class="card-header-custom">
+                            <span class="title text-capitalize fw-bold text-dark m-0 fs-6">${data.name}</span>
+                            <span class="badge bg-secondary-subtle text-dark border fw-bold">#${data.id.toString().padStart(3, '0')}</span>
+                        </div>
+                        
+                        <div class="pokemon-img-wrapper">
+                            <img src="${imageSrc}" alt="${data.name}" class="foto">
+                        </div>
+
+                        <div class="info pb-1">
+                            <div class="tipo d-flex justify-content-center gap-1">
+                                ${tiposBadges}
+                            </div>
                         </div>
                     </div>
+
+                    <!-- CARA TRASERA -->
                     <div class="backSide">
-                        <ul>
-                            ${data.stats.map(stat => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
-                        </ul>
-                        <p>Habilidades:</p>
-                        <ul>
-                            ${data.abilities.map(ability => `<li>${ability.ability.name}</li>`).join('')}
-                        </ul>
+                        <div>
+                            <h6 class="fw-bold text-uppercase fs-7">Estadísticas</h6>
+                            <ul class="list-unstyled mb-0">
+                                ${statsList}
+                            </ul>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-uppercase fs-7">Habilidades</h6>
+                            <ul class="list-unstyled mb-0">
+                                ${habilidadesList}
+                            </ul>
+                        </div>
                     </div>
+
                 </div>
             </div>
-        `;
-    }
+        </div>
+    `;
 }
 
-document.querySelector('#page').addEventListener('change', (e) => {
-    console.log(e.target.value);
-
-    
-    resetSearch();
-
-  
-        if (e.target.value == 1) paginacion(1, 20);
-        if(e.target.value==2)paginacion(21,40)
-        if(e.target.value==3)paginacion(41,60)
-        if(e.target.value==4)paginacion(61,80)
-        if(e.target.value==5)paginacion(81,100)
-        if(e.target.value==6)paginacion(101,120)
-        if(e.target.value==7)paginacion(121,140)
-        if(e.target.value==8)paginacion(141,160)
-        if(e.target.value==9)paginacion(161,180)
-        if(e.target.value==10)paginacion(181,200)
-        if(e.target.value==11)paginacion(201,220)
-        if(e.target.value==12)paginacion(221,240)
-        if(e.target.value==13)paginacion(241,260)
-        if(e.target.value==14)paginacion(261,280)
-        if(e.target.value==15)paginacion(281,300)
-        if(e.target.value==16)paginacion(301,320)
-        if(e.target.value==17)paginacion(321,340)
-        if(e.target.value==18)paginacion(341,360)
-        if(e.target.value==19)paginacion(361,380)
-        if(e.target.value==20)paginacion(381,400)
-    });
-
-async function buscarPokemon() {
-    const searchInput = document.getElementById("searchInput").value.trim().toLowerCase();
-    const pokemonInfo = document.getElementById("pokemon-info");
-
-    if (!isNaN(searchInput)) {
-        const pokemonId = parseInt(searchInput);
-        await mostrarPokemon(pokemonId, pokemonInfo);
-    } else {
-        await buscarPokemonPorNombre(searchInput, pokemonInfo);
-    }
+function createSpinnerHTML() {
+    return `
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status"></div>
+        </div>
+    `;
 }
 
-async function mostrarPokemon(pokemonIdOrName, container) {
+function createErrorHTML(mensaje) {
+    return `
+        <div class="col-12 text-center my-3">
+            <div class="alert alert-dark d-inline-block px-4 text-white fw-semibold">${mensaje}</div>
+        </div>
+    `;
+}
+
+// --- MANEJO DE EVENTOS ---
+document.addEventListener('DOMContentLoaded', () => {
+    loadPage(1);
+});
+
+async function loadPage(pageNumber) {
+    resetContainers();
+    cardsContainer.innerHTML = createSpinnerHTML();
+
+    const limit = pageNumber * 20;
+    const start = limit - 19;
+
     try {
-        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonIdOrName}`;
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        container.innerHTML = `
-            <div class="myCard">
-                <div class="innerCard">
-                    <div class="frontSide">
-                        <img src="${data.sprites.front_default}" alt="${data.name}" class="foto">
-                        <div class="info">
-                            <p class="title">${data.name}</p>
-                            <p class="tipo">${data.types.map(type => type.type.name).join(', ')}</p>
-                            <p>ID: ${data.id}</p>
-                        </div>
-                    </div>
-                    <div class="backSide">
-                        <ul>
-                            ${data.stats.map(stat => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
-                        </ul>
-                        <p>Habilidades:</p>
-                        <ul>
-                            ${data.abilities.map(ability => `<li>${ability.ability.name}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
+        const pokemons = await getPokemonRange(start, limit);
+        cardsContainer.innerHTML = pokemons.map(p => createPokemonCardHTML(p)).join('');
     } catch (error) {
-        container.innerHTML = '<p class="not-found">Pokémon no encontrado.</p>';
-        console.error("Error al buscar el Pokémon:", error);
+        cardsContainer.innerHTML = createErrorHTML('Ocurrió un error al cargar la lista.');
     }
 }
 
-async function buscarPokemonPorNombre(nombre, container) {
+searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (!query) return;
+
+    resetContainers();
+    pokemonInfoContainer.innerHTML = createSpinnerHTML();
+
     try {
-        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${nombre.toLowerCase()}`;
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        container.innerHTML = `
-            <div class="myCard">
-                <div class="innerCard">
-                    <div class="frontSide">
-                        <img src="${data.sprites.front_default}" alt="${data.name}" class="foto">
-                        <div class="info">
-                            <p class="title">${data.name}</p>
-                            <p class="tipo">${data.types.map(type => type.type.name).join(', ')}</p>
-                            <p>ID: ${data.id}</p>
-                        </div>
-                    </div>
-                    <div class="backSide">
-                        <ul>
-                            ${data.stats.map(stat => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
-                        </ul>
-                        <p>Habilidades:</p>
-                        <ul>
-                            ${data.abilities.map(ability => `<li>${ability.ability.name}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
+        const pokemon = await getPokemon(query);
+        pokemonInfoContainer.innerHTML = `<div class="row justify-content-center">${createPokemonCardHTML(pokemon)}</div>`;
     } catch (error) {
-        container.innerHTML = '<p class="not-found">Pokémon no encontrado.</p>';
-        console.error("Error al buscar el Pokémon:", error);
+        pokemonInfoContainer.innerHTML = createErrorHTML('Pokémon no encontrado.');
     }
-}
+});
 
-function resetSearch() {
-    const searchInput = document.getElementById("searchInput");
-    const pokemonInfo = document.getElementById("pokemon-info");
+pageSelect.addEventListener('change', (e) => {
+    const page = parseInt(e.target.value);
+    if (page) loadPage(page);
+});
 
-    
-    searchInput.value = "";
-
-    
-    pokemonInfo.innerHTML = "";
+function resetContainers() {
+    pokemonInfoContainer.innerHTML = '';
+    cardsContainer.innerHTML = '';
 }

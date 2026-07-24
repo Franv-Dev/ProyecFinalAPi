@@ -1,0 +1,245 @@
+/* --- PALETA DE COLORES PASTEL DEFINIDOS --- */
+:root {
+    --pastel-red: #ff6b6b;    /* Rojo pastel vibrante (Domina el fondo) */
+    --pastel-pink: #ffb3ba;   /* Rosa pastel */
+    --pastel-black: #555b6e;  /* Negro pastel (Gris carbón suave) */
+    --pastel-gray: #eef1f5;   /* Gris pastel (Fondo de la pantalla) */
+    --pastel-white: #ffffff;  /* Blanco puro (Cards) */
+    --pastel-blue: #bae1ff;   /* Celeste pastel (Lente y detalles) */
+}
+
+/* --- FONDO PRINCIPAL (ROJO Y ROSA BIEN NOTORIOS) --- */
+body {
+    background: linear-gradient(135deg, var(--pastel-red) 0%, var(--pastel-pink) 70%, var(--pastel-red) 100%);
+    background-size: 200% 200%;
+    animation: gradientMove 8s ease infinite;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- BARRA SUPERIOR (NEGRO PASTEL PARA CONTRASTAR) --- */
+.pokedex-top-bar {
+    background-color: var(--pastel-black);
+    border-bottom: 6px solid #3e4352;
+    padding: 15px 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 10;
+}
+
+/* Lente principal (Celeste pastel) */
+.big-blue-lens {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffffff, var(--pastel-blue), #7db9e8);
+    border: 5px solid var(--pastel-white);
+    box-shadow: 0 0 20px var(--pastel-blue), inset 0 -4px 8px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.lens-reflection {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    width: 20px;
+    height: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: rotate(-45deg);
+}
+
+/* Luces miniatura */
+.mini-light {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--pastel-white);
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
+}
+
+.light-red { background: var(--pastel-red); }
+.light-yellow { background: #ffdfba; }
+.light-green { background: #baffc9; }
+
+/* --- PANTALLA PRINCIPAL (GRIS PASTEL CON BORDES NEGROS Y EFECTO RGB) --- */
+.pokedex-screen {
+    background-color: var(--pastel-gray);
+    border: 12px solid var(--pastel-black);
+    border-bottom: 45px solid var(--pastel-black);
+    border-radius: 25px;
+    padding: 25px;
+    /* EFECTO RGB ANIMADO EN LA SOMBRA */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: rgbGlow 6s infinite alternate;
+    position: relative;
+}
+
+@keyframes rgbGlow {
+    0% { box-shadow: 0 0 20px var(--pastel-red), 0 15px 30px rgba(0,0,0,0.3); }
+    33% { box-shadow: 0 0 20px var(--pastel-blue), 0 15px 30px rgba(0,0,0,0.3); }
+    66% { box-shadow: 0 0 20px var(--pastel-pink), 0 15px 30px rgba(0,0,0,0.3); }
+    100% { box-shadow: 0 0 20px var(--pastel-red), 0 15px 30px rgba(0,0,0,0.3); }
+}
+
+.screen-footer {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    display: flex;
+    justify-content: center;
+}
+
+.speaker-lines {
+    width: 100%;
+    height: 4px;
+    background: #3e4352;
+    border-radius: 2px;
+    box-shadow: 0 10px 0 #3e4352, 0 20px 0 #3e4352;
+}
+
+/* Modificamos el título para que combine con la nueva barra superior */
+h1.text-white {
+    color: var(--pastel-black) !important;
+    text-shadow: none;
+}
+
+/* --- CONTENEDOR 3D DE LAS CARDS --- */
+.myCard {
+    background-color: transparent;
+    width: 250px;
+    height: 350px;
+    perspective: 1000px;
+    margin: 0 auto;
+}
+
+.innerCard {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.myCard:hover .innerCard {
+    transform: rotateY(180deg);
+}
+
+.frontSide, .backSide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 4px solid var(--pastel-white);
+}
+
+/* --- CARA FRONTAL (BLANCO PASTEL) --- */
+.frontSide {
+    background: var(--pastel-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px;
+    color: var(--pastel-black);
+}
+
+.card-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.pokemon-img-wrapper {
+    background: radial-gradient(circle, var(--pastel-white) 0%, var(--pastel-gray) 100%);
+    border-radius: 1rem;
+    border: 1px solid #dce0e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.foto {
+    max-height: 140px;
+    max-width: 140px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.15));
+    transition: transform 0.3s ease;
+}
+
+.myCard:hover .foto {
+    transform: scale(1.1);
+}
+
+/* --- CARA TRASERA --- */
+.backSide {
+    background: linear-gradient(145deg, #787e8f 0%, var(--pastel-black) 100%);
+    color: var(--pastel-white);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left;
+    padding: 16px;
+}
+
+.backSide h6 {
+    color: var(--pastel-blue);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+/* --- BADGES DE TIPOS CON COLORES PASTELIZADOS --- */
+.badge-type {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 15px;
+    color: var(--pastel-black);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Colores de tipos bien pastel */
+.type-grass { background-color: #baffc9; }
+.type-fire { background-color: #ffb3ba; }
+.type-water { background-color: #bae1ff; }
+.type-bug { background-color: #e2f0cb; }
+.type-normal { background-color: #e8ecef; }
+.type-poison { background-color: #f3c4fb; }
+.type-electric { background-color: #fdfd96; }
+.type-ground { background-color: #f5e6cc; }
+.type-fairy { background-color: #ffdfd3; }
+.type-fighting { background-color: #ff8b94; }
+.type-psychic { background-color: #fca3cc; }
+.type-rock { background-color: #d1cda8; }
+.type-ghost { background-color: #c9c5e8; }
+.type-ice { background-color: #c4faf8; }
+.type-dragon { background-color: #c8b6ff; }
+
+.max-width-search {
+    max-width: 600px;
+    margin: 0 auto;
+}
